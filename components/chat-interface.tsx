@@ -263,18 +263,32 @@ async function simulateLLMResponse(model: string, prompt: string): Promise<LLMRe
       };
     }
   }
+  if (model === "GPT-4") {
+    try {
+      const res = await fetch("/api/openai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      if (!res.ok) throw new Error("OpenAI API error");
+      const data = await res.json();
+      return {
+        model: "GPT-4",
+        response: data.reply || "No response from OpenAI.",
+        confidence: 90, // You can adjust or randomize as needed
+      };
+    } catch (error) {
+      return {
+        model: "GPT-4",
+        response: "Error fetching OpenAI response.",
+        confidence: 0,
+      };
+    }
+  }
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 2000))
 
   const responses = {
-    "GPT-4": {
-      "climate change":
-        "Climate change requires immediate action through renewable energy transition, carbon pricing, and international cooperation. Key solutions include solar and wind deployment, electric vehicle adoption, and nature-based solutions.",
-      "ai ethics":
-        "AI ethics encompasses fairness, transparency, accountability, and privacy. We need robust governance frameworks, diverse development teams, and continuous monitoring of AI systems for bias and harmful outcomes.",
-      default:
-        "This is a complex topic that requires careful analysis of multiple perspectives, evidence-based reasoning, and consideration of various stakeholder interests.",
-    },
     Claude: {
       "climate change":
         "Addressing climate change demands systemic transformation across energy, transportation, and industrial sectors. Effective strategies include carbon capture, sustainable agriculture, and climate adaptation measures.",
